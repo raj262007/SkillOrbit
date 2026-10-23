@@ -36,13 +36,13 @@ async def submit_admission(
                 upload_file_to_cloudinary,
                 photo_bytes,
                 photo.filename or "photo.jpg",
-                "pathforge-ai/photos"
+                "skillorbit/photos"
             ),
             asyncio.to_thread(
                 upload_file_to_cloudinary,
                 id_card_bytes,
                 id_card.filename or "id_card.jpg",
-                "pathforge-ai/id-cards"
+                "skillorbit/id-cards"
             ),
         )
 

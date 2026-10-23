@@ -1,5 +1,5 @@
 """
-PathForge AI — Badge & Gamification Engine.
+SkillOrbit — Badge & Gamification Engine.
 Calculates student XP, milestone achievements, and badge unlocks.
 """
 from typing import Dict, List, Any

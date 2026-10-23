@@ -1,5 +1,5 @@
 """
-PathForge AI — FastAPI server entry point.
+SkillOrbit — FastAPI server entry point.
 Run with: python run.py
 """
 import uvicorn

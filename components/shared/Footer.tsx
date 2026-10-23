@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-gray-900 text-gray-400 py-12 px-4 mt-20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h3 className="text-white font-bold text-lg mb-3">PathForge AI</h3>
+          <h3 className="text-white font-bold text-lg mb-3">SkillOrbit</h3>
           <p className="text-sm leading-relaxed">AI-powered career roadmap platform. From beginner to job-ready in 6 months.</p>
         </div>
         <div>
@@ -21,14 +21,14 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-semibold mb-3">Contact</h4>
           <div className="flex flex-col gap-2 text-sm">
-            <p>📧 pathforgeai@gmail.com</p>
-            <p>💬 WhatsApp: +91 XXXXXXXXXX</p>
-            <p>📍 Ahmedabad, Gujarat</p>
+            <p>📧 contact@skillorbit.in</p>
+            <p>💬 WhatsApp: +91 7801924560</p>
+            <p>📍 India</p>
           </div>
         </div>
       </div>
       <div className="max-w-7xl mx-auto border-t border-gray-800 mt-10 pt-6 text-center text-sm">
-        © 2026 PathForge AI — All rights reserved.
+        © 2026 SkillOrbit — All rights reserved.
       </div>
     </footer>
   );

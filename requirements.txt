@@ -1,4 +1,4 @@
-# PathForge AI — Python Backend Dependencies
+# SkillOrbit — Python Backend Dependencies
 fastapi
 uvicorn[standard]
 python-multipart

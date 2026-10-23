@@ -232,11 +232,11 @@ export default function StudentDashboardPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-100">
-              PF
+              SO
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-900 text-base">PathForge</span>
-              <span className="text-indigo-600 font-extrabold text-base ml-1">AI</span>
+              <span className="font-extrabold tracking-tight text-slate-900 text-base">Skill</span>
+              <span className="text-indigo-600 font-extrabold text-base ml-1">Orbit</span>
             </div>
           </div>
 

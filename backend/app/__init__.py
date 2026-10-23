@@ -1,1 +1,1 @@
-# PathForge AI backend package
+# SkillOrbit backend package

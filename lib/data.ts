@@ -45,7 +45,7 @@ export const teamMembers = [
   {
     name: "Pawan Singh",
     role: "Founder & CEO",
-    bio: "Building PathForge AI to give every student a structured path to become job-ready.",
+    bio: "Building SkillOrbit to give every student a structured path to become job-ready.",
     linkedin: "https://linkedin.com/in/username",
     Github: "https://git.com/raj262007",
     initials: "YN",

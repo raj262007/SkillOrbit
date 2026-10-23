@@ -8,8 +8,8 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", ".en
 
 from app.routes import admission, admin, auth, student, progress, leaderboard
 app = FastAPI(
-    title="PathForge AI — Backend API",
-    description="FastAPI backend for the PathForge AI EdTech platform.",
+    title="SkillOrbit — Backend API",
+    description="FastAPI backend for the SkillOrbit EdTech platform.",
     version="1.0.0",
 )
 
@@ -45,4 +45,4 @@ app.include_router(leaderboard.router, prefix="/api", tags=["Leaderboard"])
 
 @app.get("/", tags=["Health"])
 async def root():
-    return {"status": "ok", "message": "PathForge AI API is running."}
+    return {"status": "ok", "message": "SkillOrbit API is running."}

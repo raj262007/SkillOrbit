@@ -33,7 +33,7 @@ def send_email(to_email: str, subject: str, html_body: str) -> bool:
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = f"PathForge AI <{GMAIL_USER}>"
+        msg["From"] = f"SkillOrbit <{GMAIL_USER}>"
         msg["To"] = to_email
         msg.attach(MIMEText(html_body, "html"))
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -99,16 +99,16 @@ def send_selection_email(to_email: str, full_name: str, plan: str, password: str
 <body>
   <div class="wrapper">
     <div class="header">
-      <div class="header-logo">✦ PathForge AI</div>
+      <div class="header-logo">✦ SkillOrbit</div>
       <div class="confetti">🎉</div>
       <h1>Congratulations!<br/>You're Selected!</h1>
-      <p>Welcome to the PathForge AI Beta Program</p>
+      <p>Welcome to the SkillOrbit Beta Program</p>
       <span class="badge">✦ {plan_display} Plan — 6 Months Access</span>
     </div>
     <div class="body">
       <p class="greeting">Hello, {full_name}! 👋</p>
       <p class="message">
-        We are thrilled to inform you that your application to <strong>PathForge AI</strong> has been
+        We are thrilled to inform you that your application to <strong>SkillOrbit</strong> has been
         <strong>approved!</strong> Out of many applicants, you have been selected for our
         <strong>{plan_display} Plan</strong> in the <strong>{domain}</strong> domain. Your AI-powered career journey starts now. 🚀
       </p>
@@ -160,7 +160,7 @@ def send_selection_email(to_email: str, full_name: str, plan: str, password: str
       </div>
       <div class="warn-box">
         🔒 <strong>Security Notice:</strong> Your password is strictly confidential.
-        <strong>Never share it with anyone</strong> — not even with PathForge AI team members.
+        <strong>Never share it with anyone</strong> — not even with SkillOrbit team members.
         We will <strong>never</strong> ask for your password. If anyone asks, report it immediately.
       </div>
       <div class="btn-wrapper">
@@ -171,7 +171,7 @@ def send_selection_email(to_email: str, full_name: str, plan: str, password: str
         <div class="founder-avatar">P</div>
         <div>
           <div class="founder-name">Pawan Singh</div>
-          <div class="founder-role">Founder & CEO — PathForge AI</div>
+          <div class="founder-role">Founder & CEO — SkillOrbit</div>
           <div class="founder-contact">📞 +91 7801924560 &nbsp;|&nbsp; 💬 WhatsApp Available</div>
         </div>
       </div>
@@ -181,10 +181,10 @@ def send_selection_email(to_email: str, full_name: str, plan: str, password: str
       </p>
     </div>
     <div class="footer">
-      <div class="footer-logo">PathForge AI</div>
+      <div class="footer-logo">SkillOrbit</div>
       <p>
-        You received this email because you applied to PathForge AI Beta Program.<br/>
-        © 2026 PathForge AI. All rights reserved.<br/>
+        You received this email because you applied to SkillOrbit Beta Program.<br/>
+        © 2026 SkillOrbit. All rights reserved.<br/>
         <a href="mailto:pawans1626@gmail.com">pawans1626@gmail.com</a>
       </p>
     </div>
@@ -192,7 +192,7 @@ def send_selection_email(to_email: str, full_name: str, plan: str, password: str
 </body>
 </html>
 """
-    return send_email(to_email, "🎉 Congratulations! You are Selected for PathForge AI", html_body)
+    return send_email(to_email, "🎉 Congratulations! You are Selected for SkillOrbit", html_body)
 
 
 def send_rejection_email(to_email: str, full_name: str) -> bool:
@@ -237,14 +237,14 @@ def send_rejection_email(to_email: str, full_name: str) -> bool:
 <body>
   <div class="wrapper">
     <div class="header">
-      <div class="header-logo">✦ PathForge AI</div>
+      <div class="header-logo">✦ SkillOrbit</div>
       <h1>Application Status Update</h1>
-      <p>Thank you for applying to PathForge AI</p>
+      <p>Thank you for applying to SkillOrbit</p>
     </div>
     <div class="body">
       <p class="greeting">Hi {full_name}, 👋</p>
       <p class="message">
-        Thank you for applying to the <strong>PathForge AI Beta Program</strong>.
+        Thank you for applying to the <strong>SkillOrbit Beta Program</strong>.
         We truly appreciate your interest and the effort you put into your application.
       </p>
       <p class="message">
@@ -258,7 +258,7 @@ def send_rejection_email(to_email: str, full_name: str) -> bool:
       <div class="coupon">
         <p>As a thank-you for applying, here is an exclusive offer just for you</p>
         <div class="coupon-code">LAUNCH50</div>
-        <p class="coupon-label">🎁 50% OFF on any PathForge AI paid plan — limited time only</p>
+        <p class="coupon-label">🎁 50% OFF on any SkillOrbit paid plan — limited time only</p>
       </div>
       <div class="btn-wrapper">
         <a href="{subscription_link}" class="btn">🔓 Claim 50% Off →</a>
@@ -268,20 +268,20 @@ def send_rejection_email(to_email: str, full_name: str) -> bool:
         <div class="founder-avatar">P</div>
         <div>
           <div class="founder-name">Pawan Singh</div>
-          <div class="founder-role">Founder & CEO — PathForge AI</div>
+          <div class="founder-role">Founder & CEO — SkillOrbit</div>
           <div class="founder-contact">📞 +91 7801924560 &nbsp;|&nbsp; 💬 WhatsApp Available</div>
         </div>
       </div>
       <p class="message" style="text-align:center; color:#64748b; font-size:14px;">
         Use code <strong>LAUNCH50</strong> at checkout.<br/>
-        We hope to see you inside PathForge AI very soon! 💪
+        We hope to see you inside SkillOrbit very soon! 💪
       </p>
     </div>
     <div class="footer">
-      <div class="footer-logo">PathForge AI</div>
+      <div class="footer-logo">SkillOrbit</div>
       <p>
-        You received this email because you applied to PathForge AI Beta Program.<br/>
-        © 2026 PathForge AI. All rights reserved.<br/>
+        You received this email because you applied to SkillOrbit Beta Program.<br/>
+        © 2026 SkillOrbit. All rights reserved.<br/>
         <a href="mailto:pawans1626@gmail.com">pawans1626@gmail.com</a>
       </p>
     </div>
@@ -289,4 +289,4 @@ def send_rejection_email(to_email: str, full_name: str) -> bool:
 </body>
 </html>
 """
-    return send_email(to_email, "PathForge AI — Application Status Update", html_body)
+    return send_email(to_email, "SkillOrbit — Application Status Update", html_body)

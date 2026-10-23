@@ -12,7 +12,7 @@ cloudinary.config(
     secure=True,
 )
 
-def upload_file_to_cloudinary(file_bytes: bytes, filename: str, folder: str = "pathforge-ai") -> str:
+def upload_file_to_cloudinary(file_bytes: bytes, filename: str, folder: str = "skillorbit") -> str:
     """
     Upload a file to Cloudinary and return its secure URL.
     Supports images and PDFs.

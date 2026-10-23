@@ -42,10 +42,10 @@ export default function StudentLoginPage() {
         {/* Brand mark */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <span className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-base">
-              PF
+            <span className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-base font-bold">
+              SO
             </span>
-            PathForge AI
+            SkillOrbit
           </div>
           <p className="text-gray-500 text-sm mt-2">Welcome back — pick up where you left off.</p>
         </div>

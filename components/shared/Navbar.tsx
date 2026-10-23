@@ -16,7 +16,10 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-blue-600 font-bold text-xl">PathForge AI</Link>
+        <Link href="/" className="font-bold text-xl flex items-center gap-1">
+          <span className="text-blue-600 font-black text-2xl tracking-tight">Skill</span>
+          <span className="text-indigo-600 font-black text-2xl tracking-tight">Orbit</span>
+        </Link>
         <div className="hidden md:flex gap-6 items-center">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="text-gray-600 hover:text-blue-600 text-sm transition-colors">{link.label}</Link>

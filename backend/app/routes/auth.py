@@ -96,7 +96,7 @@ async def admin_login(body: AdminLoginRequest):
         "sub": "admin",
         "email": ADMIN_EMAIL,
         "role": "admin",
-        "full_name": "PathForge Admin",
+        "full_name": "SkillOrbit Admin",
     }
     token = create_access_token(token_data)
 
@@ -105,7 +105,7 @@ async def admin_login(body: AdminLoginRequest):
         "token_type": "bearer",
         "user": {
             "id": "admin",
-            "full_name": "PathForge Admin",
+            "full_name": "SkillOrbit Admin",
             "email": ADMIN_EMAIL,
             "role": "admin",
             "subscription_type": None,

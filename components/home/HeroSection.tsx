@@ -8,7 +8,7 @@ export default function HeroSection() {
           🚀 29 Free Beta Seats — College Students Only
         </div>
         <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          Forge Your Path.{" "}<span className="text-blue-600">Build Your Future.</span>
+          Launch Your Orbit.{" "}<span className="text-blue-600">Build Your Future.</span>
         </h1>
         <p className="text-xl text-gray-500 mb-10 max-w-2xl mx-auto">
           AI-powered 6-month career roadmap. Week-by-week learning, real projects, verified certificate. Beginner to job-ready.

@@ -24,11 +24,11 @@ export default function ContactPage() {
           <div className="space-y-8">
             <h3 className="font-semibold text-gray-900 text-lg">Get in Touch</h3>
 
-            <a href="mailto:pathforgeai@gmail.com" className="flex gap-4 items-center p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+            <a href="mailto:contact@skillorbit.in" className="flex gap-4 items-center p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
               <span className="text-2xl">📧</span>
               <div>
                 <div className="font-medium text-gray-900 text-sm group-hover:text-blue-600 transition-colors">Email</div>
-                <div className="text-gray-500 text-sm">rvnlabs.team@gmail.com</div>
+                <div className="text-gray-500 text-sm">contact@skillorbit.in</div>
               </div>
             </a>
 

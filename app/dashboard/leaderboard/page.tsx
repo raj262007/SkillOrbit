@@ -133,7 +133,7 @@ export default function LeaderboardPage() {
               🏆
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-900 text-base">PathForge</span>
+              <span className="font-extrabold tracking-tight text-slate-900 text-base">SkillOrbit</span>
               <span className="text-indigo-600 font-extrabold text-base ml-1">Arena</span>
             </div>
           </div>
