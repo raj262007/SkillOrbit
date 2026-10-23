@@ -1,0 +1,11 @@
+# PathForge AI — Python Backend Dependencies
+fastapi
+uvicorn[standard]
+python-multipart
+supabase
+cloudinary
+resend
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+bcrypt

@@ -25,22 +25,32 @@ async def submit_admission(
     and save the record to the Supabase admissions table.
     """
     try:
-        # --- Upload photo to Cloudinary ---
+        # Read file bytes
         photo_bytes = await photo.read()
-        photo_url = upload_file_to_cloudinary(
-            photo_bytes, photo.filename or "photo.jpg", folder="pathforge-ai/photos"
+        id_card_bytes = await id_card.read()
+
+        # Upload both photo and ID card concurrently in background threads
+        import asyncio
+        photo_url, id_card_url = await asyncio.gather(
+            asyncio.to_thread(
+                upload_file_to_cloudinary,
+                photo_bytes,
+                photo.filename or "photo.jpg",
+                "pathforge-ai/photos"
+            ),
+            asyncio.to_thread(
+                upload_file_to_cloudinary,
+                id_card_bytes,
+                id_card.filename or "id_card.jpg",
+                "pathforge-ai/id-cards"
+            ),
         )
+
         if not photo_url:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to upload student photo.",
             )
-
-        # --- Upload ID card to Cloudinary ---
-        id_card_bytes = await id_card.read()
-        id_card_url = upload_file_to_cloudinary(
-            id_card_bytes, id_card.filename or "id_card.jpg", folder="pathforge-ai/id-cards"
-        )
         if not id_card_url:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -56,13 +56,13 @@ class ChallengeSubmitRequest(BaseModel):
 
 
 @router.get("/student/phase/{phase_number}/challenges")
-async def get_challenges(phase_number: int, student: dict = Depends(require_student)):
+async def get_challenges(phase_number: int, domain: str = None, student: dict = Depends(require_student)):
     user_id = student.get("sub")
     user = _get_user(user_id)
-    domain = user.get("domain")
+    active_domain = domain if (domain and domain in ["Full Stack Developer", "Python Developer", "UI / UX Design", "Data Science"]) else user.get("domain")
 
     challenges_resp = (
-        supabase.table("coding_challenges").select("*").eq("domain", domain).eq("phase_number", phase_number).execute()
+        supabase.table("coding_challenges").select("*").eq("domain", active_domain).eq("phase_number", phase_number).execute()
     )
     challenges = challenges_resp.data or []
 
@@ -71,6 +71,8 @@ async def get_challenges(phase_number: int, student: dict = Depends(require_stud
     )
     solved_ids = {row["challenge_id"] for row in (solved_resp.data or [])}
 
+    is_preview = bool(user.get("is_preview_account"))
+
     result = []
     for c in challenges:
         is_solved = c["id"] in solved_ids
@@ -78,8 +80,8 @@ async def get_challenges(phase_number: int, student: dict = Depends(require_stud
             "id": c["id"], "title": c["title"], "description": c["description"],
             "difficulty": c["difficulty"], "starter_code": c.get("starter_code"),
             "hint": c.get("hint"), "solved": is_solved,
-            # solution only revealed once solved, same pattern as project solution_reference
-            "solution_code": c.get("solution_code") if is_solved else None,
+            # solution revealed if solved or if preview account for quick testing
+            "solution_code": c.get("solution_code") if (is_solved or is_preview) else None,
         })
     return {"phase_number": phase_number, "challenges": result}
 

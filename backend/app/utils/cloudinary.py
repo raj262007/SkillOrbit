@@ -27,5 +27,6 @@ def upload_file_to_cloudinary(file_bytes: bytes, filename: str, folder: str = "p
         resource_type=resource_type,
         use_filename=True,
         unique_filename=True,
+        timeout=60,
     )
     return result.get("secure_url", "")

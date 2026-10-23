@@ -2,12 +2,71 @@
 import { useState } from "react";
 import { API_BASE } from "@/lib/api";
 
+async function compressImageFile(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+  if (file.size < 250 * 1024) {
+    return file;
+  }
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxWidth) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob || blob.size >= file.size) {
+              resolve(file);
+            } else {
+              const compressed = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(compressed);
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
+
 export default function AdmissionPage() {
   const [form, setForm] = useState({ fullName: "", email: "", whatsapp: "", enrollmentNo: "", branch: "", year: "", address: "", parentMobile: "", domain: "", reason: "" });
   const [photo, setPhoto] = useState<File | null>(null);
   const [idCard, setIdCard] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -27,8 +86,26 @@ export default function AdmissionPage() {
       return;
     }
 
+    if (photo.size > 10 * 1024 * 1024) {
+      setError("Student photo must be under 10MB.");
+      return;
+    }
+    if (idCard.size > 10 * 1024 * 1024) {
+      setError("College ID card must be under 10MB.");
+      return;
+    }
+
     setLoading(true);
+    setStatusMessage("Optimizing images...");
+
     try {
+      const [optimizedPhoto, optimizedIdCard] = await Promise.all([
+        compressImageFile(photo),
+        compressImageFile(idCard),
+      ]);
+
+      setStatusMessage("Uploading application & documents...");
+
       const formData = new FormData();
       formData.append("full_name", form.fullName);
       formData.append("email", form.email);
@@ -40,13 +117,19 @@ export default function AdmissionPage() {
       formData.append("parent_mobile", form.parentMobile);
       formData.append("domain", form.domain);
       formData.append("reason", form.reason);
-      formData.append("photo", photo);
-      formData.append("id_card", idCard);
+      formData.append("photo", optimizedPhoto);
+      formData.append("id_card", optimizedIdCard);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
       const res = await fetch(`${API_BASE}/admission`, {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -55,9 +138,14 @@ export default function AdmissionPage() {
 
       setSubmitted(true);
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      if (err.name === "AbortError") {
+        setError("Upload timed out. Please check your internet connection and try again.");
+      } else {
+        setError(err.message || "An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
+      setStatusMessage("");
     }
   };
 
@@ -174,7 +262,7 @@ export default function AdmissionPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                Submitting…
+                {statusMessage || "Submitting…"}
               </>
             ) : (
               "Submit Application"

@@ -12,6 +12,7 @@ interface Lecture {
 }
 
 interface PhaseData {
+  domain?: string;
   phase_number: number;
   phase_title: string;
   weeks_covered: string;
@@ -75,6 +76,7 @@ export default function PhaseDetailPage() {
   const phaseNumber = params.phaseNumber as string;
 
   const [data, setData] = useState<PhaseData | null>(null);
+  const [domain, setDomain] = useState<string>("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
@@ -105,17 +107,31 @@ export default function PhaseDetailPage() {
   const [replyText, setReplyText] = useState("");
   const [postingMessage, setPostingMessage] = useState(false);
 
+  function getActiveDomain(): string {
+    if (typeof window !== "undefined") {
+      const qd = new URLSearchParams(window.location.search).get("domain");
+      if (qd) return qd;
+    }
+    return domain;
+  }
+
   function loadPhase() {
     const token = localStorage.getItem("student_token");
     if (!token) {
       router.push("/login");
       return;
     }
-    fetch(`${API_BASE}/student/phase/${phaseNumber}`, { headers: authHeaders() })
+    const currentDomain = getActiveDomain();
+    const url = currentDomain
+      ? `${API_BASE}/student/phase/${phaseNumber}?domain=${encodeURIComponent(currentDomain)}`
+      : `${API_BASE}/student/phase/${phaseNumber}`;
+
+    fetch(url, { headers: authHeaders() })
       .then(async (res) => {
         const body = await res.json();
         if (!res.ok) throw new Error(body.detail || "Failed to load phase");
         setData(body);
+        if (body.domain) setDomain(body.domain);
         setActiveVideoIndex(0);
       })
       .catch((err) => setError(err.message))
@@ -123,7 +139,12 @@ export default function PhaseDetailPage() {
   }
 
   function loadChallenges() {
-    fetch(`${API_BASE}/student/phase/${phaseNumber}/challenges`, { headers: authHeaders() })
+    const currentDomain = getActiveDomain();
+    const url = currentDomain
+      ? `${API_BASE}/student/phase/${phaseNumber}/challenges?domain=${encodeURIComponent(currentDomain)}`
+      : `${API_BASE}/student/phase/${phaseNumber}/challenges`;
+
+    fetch(url, { headers: authHeaders() })
       .then((res) => res.json())
       .then((body) => setChallenges(body.challenges || []))
       .catch((err) => console.error(err));
@@ -164,7 +185,11 @@ export default function PhaseDetailPage() {
     setQuizResult(null);
     setQuizAnswers({});
     try {
-      const res = await fetch(`${API_BASE}/student/phase/${phaseNumber}/quiz`, { headers: authHeaders() });
+      const currentDomain = getActiveDomain();
+      const url = currentDomain
+        ? `${API_BASE}/student/phase/${phaseNumber}/quiz?domain=${encodeURIComponent(currentDomain)}`
+        : `${API_BASE}/student/phase/${phaseNumber}/quiz`;
+      const res = await fetch(url, { headers: authHeaders() });
       const body = await res.json();
       if (!res.ok) throw new Error(body.detail || "Failed to load quiz");
       setQuestions(body.questions);
@@ -303,14 +328,30 @@ export default function PhaseDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.push("/dashboard")} className="text-gray-500 hover:text-gray-800 text-sm">
-            ← Dashboard
-          </button>
-          <span className="text-gray-300">|</span>
-          <span className="font-semibold text-gray-900">
-            Phase {data.phase_number}: {data.phase_title}
-          </span>
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                const currentDomain = getActiveDomain();
+                router.push(currentDomain ? `/dashboard?domain=${encodeURIComponent(currentDomain)}` : "/dashboard");
+              }}
+              className="text-gray-500 hover:text-gray-800 text-sm font-medium"
+            >
+              ← Dashboard
+            </button>
+            <span className="text-gray-300">|</span>
+            <span className="font-semibold text-gray-900">
+              {(data.domain || domain) && (
+                <span className="text-indigo-600 font-semibold mr-2">[{data.domain || domain}]</span>
+              )}
+              Phase {data.phase_number}: {data.phase_title}
+            </span>
+          </div>
+          {data.is_preview && (
+            <span className="bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs px-2.5 py-1 rounded-full font-medium">
+              ⚡ Testing Mode (Unlocked)
+            </span>
+          )}
         </div>
       </header>
 
@@ -362,7 +403,7 @@ export default function PhaseDetailPage() {
                   videoUrl={activeLecture.video_url}
                   startTimeSeconds={activeLecture.start_time_seconds || 0}
                   endTimeSeconds={activeLecture.end_time_seconds}
-                  alreadyCompleted={data.lecture_watched}
+                  alreadyCompleted={data.lecture_watched || data.is_preview}
                   onSegmentComplete={handleMarkWatched}
                 />
               )}

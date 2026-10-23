@@ -87,21 +87,44 @@ def _check_phase_unlocked(user_id: str, domain: str, phase_number: int, user: di
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Complete the previous phase first.")
 
 
+VALID_DOMAINS = [
+    "Full Stack Developer",
+    "Python Developer",
+    "UI / UX Design",
+    "Data Science",
+]
+
+class SwitchDomainRequest(BaseModel):
+    domain: str
+
+
+@router.post("/student/switch-domain")
+async def switch_domain(body: SwitchDomainRequest, student: dict = Depends(require_student)):
+    if body.domain not in VALID_DOMAINS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid domain '{body.domain}'. Must be one of {VALID_DOMAINS}"
+        )
+    user_id = student.get("sub")
+    supabase.table("users").update({"domain": body.domain}).eq("id", user_id).execute()
+    return {"success": True, "domain": body.domain}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # GET /api/student/dashboard
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/student/dashboard")
-async def get_student_dashboard(student: dict = Depends(require_student)):
+async def get_student_dashboard(domain: str = None, student: dict = Depends(require_student)):
     user_id = student.get("sub")
     user = _get_user(user_id)
-    domain = user.get("domain")
+    active_domain = domain if (domain and domain in VALID_DOMAINS) else user.get("domain")
 
-    phases_resp = supabase.table("phases").select("*").eq("domain", domain).order("phase_number").execute()
+    phases_resp = supabase.table("phases").select("*").eq("domain", active_domain).order("phase_number").execute()
     phases = phases_resp.data or []
 
     progress_resp = (
-        supabase.table("phase_progress").select("*").eq("user_id", user_id).eq("domain", domain).execute()
+        supabase.table("phase_progress").select("*").eq("user_id", user_id).eq("domain", active_domain).execute()
     )
     progress_by_phase = {row["phase_number"]: row for row in (progress_resp.data or [])}
 
@@ -139,11 +162,21 @@ async def get_student_dashboard(student: dict = Depends(require_student)):
 
     return {
         "user": {
+            "id": user.get("id"),
             "full_name": user.get("full_name"),
             "email": user.get("email"),
-            "domain": domain,
+            "domain": active_domain,
             "subscription_type": user.get("subscription_type"),
+            "enrollment_no": user.get("enrollment_no"),
+            "branch": user.get("branch"),
+            "year": user.get("year"),
+            "photo_url": user.get("photo_url"),
+            "whatsapp": user.get("whatsapp"),
+            "created_at": user.get("created_at"),
+            "is_preview_account": is_preview,
         },
+        "is_preview": is_preview,
+        "available_domains": VALID_DOMAINS,
         "total_phases": len(result),
         "completed_phases": completed_count,
         "phases": result,
@@ -156,17 +189,17 @@ async def get_student_dashboard(student: dict = Depends(require_student)):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/student/phase/{phase_number}")
-async def get_phase_detail(phase_number: int, student: dict = Depends(require_student)):
+async def get_phase_detail(phase_number: int, domain: str = None, student: dict = Depends(require_student)):
     user_id = student.get("sub")
     user = _get_user(user_id)
-    domain = user.get("domain")
+    active_domain = domain if (domain and domain in VALID_DOMAINS) else user.get("domain")
 
-    _check_phase_unlocked(user_id, domain, phase_number, user)
+    _check_phase_unlocked(user_id, active_domain, phase_number, user)
 
     phase_resp = (
         supabase.table("phases")
         .select("*")
-        .eq("domain", domain)
+        .eq("domain", active_domain)
         .eq("phase_number", phase_number)
         .execute()
     )
@@ -175,12 +208,12 @@ async def get_phase_detail(phase_number: int, student: dict = Depends(require_st
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Phase not found.")
     phase = phase_rows[0]
 
-    progress = _get_or_create_progress(user_id, domain, phase_number)
+    progress = _get_or_create_progress(user_id, active_domain, phase_number)
 
     lectures_resp = (
         supabase.table("phase_lectures")
         .select("*")
-        .eq("domain", domain)
+        .eq("domain", active_domain)
         .eq("phase_number", phase_number)
         .order("order_index")
         .execute()
@@ -199,7 +232,7 @@ async def get_phase_detail(phase_number: int, student: dict = Depends(require_st
     projects_resp = (
         supabase.table("projects")
         .select("*")
-        .eq("domain", domain)
+        .eq("domain", active_domain)
         .eq("phase_number", phase_number)
         .order("project_number")
         .execute()
@@ -215,13 +248,14 @@ async def get_phase_detail(phase_number: int, student: dict = Depends(require_st
             "difficulty": proj["difficulty"],
             "submitted": bool(submitted_flag),
             "your_github_link": github_link,
-            # Reference solution only revealed after the student submits their own
+            # Reference solution only revealed after the student submits their own, or preview account
             "solution_reference": proj["solution_reference"],
         })
 
     is_preview = bool(user.get("is_preview_account"))
 
     return {
+        "domain": active_domain,
         "phase_number": phase_number,
         "phase_title": phase.get("phase_title"),
         "weeks_covered": phase.get("weeks_covered"),
@@ -264,13 +298,13 @@ async def mark_lecture_watched(phase_number: int, student: dict = Depends(requir
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/student/phase/{phase_number}/quiz")
-async def get_quiz(phase_number: int, student: dict = Depends(require_student)):
+async def get_quiz(phase_number: int, domain: str = None, student: dict = Depends(require_student)):
     user_id = student.get("sub")
     user = _get_user(user_id)
-    domain = user.get("domain")
+    active_domain = domain if (domain and domain in VALID_DOMAINS) else user.get("domain")
 
-    _check_phase_unlocked(user_id, domain, phase_number, user)
-    progress = _get_or_create_progress(user_id, domain, phase_number)
+    _check_phase_unlocked(user_id, active_domain, phase_number, user)
+    progress = _get_or_create_progress(user_id, active_domain, phase_number)
 
     if not progress.get("lecture_watched") and not user.get("is_preview_account"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Watch the lecture before taking the quiz.")
@@ -278,35 +312,37 @@ async def get_quiz(phase_number: int, student: dict = Depends(require_student)):
     mcq_resp = (
         supabase.table("quiz_questions")
         .select("id, question_text, option_a, option_b, option_c, option_d")
-        .eq("domain", domain).eq("phase_number", phase_number).eq("question_type", "mcq")
-        .execute()
-    )
-    text_resp = (
-        supabase.table("quiz_questions")
-        .select("id, question_text")
-        .eq("domain", domain).eq("phase_number", phase_number).eq("question_type", "text")
+        .eq("domain", active_domain).eq("phase_number", phase_number).eq("question_type", "mcq")
         .execute()
     )
     mcq_pool = mcq_resp.data or []
-    text_pool = text_resp.data or []
 
-    if len(mcq_pool) < MCQ_COUNT_PER_ATTEMPT or len(text_pool) < TEXT_COUNT_PER_ATTEMPT:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quiz question bank is not fully set up for this phase yet.")
+    if not mcq_pool:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quiz questions are not set up for this phase yet.")
 
-    selected_mcq = random.sample(mcq_pool, MCQ_COUNT_PER_ATTEMPT)
-    selected_text = random.sample(text_pool, TEXT_COUNT_PER_ATTEMPT)
+    sample_size = min(MCQ_COUNT_PER_ATTEMPT, len(mcq_pool))
+    selected_mcq = random.sample(mcq_pool, sample_size)
 
     questions = []
     for q in selected_mcq:
         questions.append({
-            "id": q["id"], "type": "mcq", "question_text": q["question_text"],
-            "options": {"A": q["option_a"], "B": q["option_b"], "C": q["option_c"], "D": q["option_d"]},
+            "id": q["id"],
+            "type": "mcq",
+            "question_text": q["question_text"],
+            "options": {
+                "A": q["option_a"],
+                "B": q["option_b"],
+                "C": q["option_c"],
+                "D": q["option_d"],
+            },
         })
-    for q in selected_text:
-        questions.append({"id": q["id"], "type": "text", "question_text": q["question_text"]})
 
     random.shuffle(questions)
-    return {"phase_number": phase_number, "total_questions": len(questions), "questions": questions}
+    return {
+        "phase_number": phase_number,
+        "total_questions": len(questions),
+        "questions": questions,
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
